@@ -1,0 +1,167 @@
+name: sway-yambar
+summary: sway with yambar panel
+description: ' '
+adopt-info: yambar
+grade: stable
+confinement: strict
+base: core20
+
+apps:
+  sway:
+    adapter: none
+    command-chain:
+    - bin/sway
+    command: usr/bin/sway
+    plugs:
+    - wayland
+  yambar:
+    adapter: none
+    command-chain:
+    - bin/sway
+    command: usr/bin/yambar
+    plugs:
+    - wayland
+
+environment:
+  HOME: $SNAP_USER_COMMON
+  XDG_CONFIG_HOME: $SNAP_USER_COMMON/.config
+#  SNAP_RUNTIME_DIR: $XDG_RUNTIME_DIR
+  PATH: $SNAP/usr/bin:$PATH
+  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/yambar
+  XKB_CONFIG_ROOT: $SNAP/gui-lib/usr/share/X11/xkb
+  __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gui-lib/usr/share/glvnd/egl_vendor.d
+  LIBGL_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+# LIBVA_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+  FONTCONFIG_PATH: $SNAP/gui-lib/etc/fonts
+  FONTCONFIG_FILE: $SNAP/etc/fonts/fonts.conf
+
+plugs:
+  gnome-3-38-2004:
+    interface: content
+    default-provider: gnome-3-38-2004
+    target: $SNAP/gui-lib
+
+layout:
+  /usr/share/font1:
+    symlink: $SNAP/gui-lib/usr/share/fonts
+  /usr/share/font2:
+    symlink: $SNAP/usr/share/fonts
+
+parts:
+  libseat:
+    source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.7.0.tar.gz
+    source-checksum: sha256/210ddf8efa1149cde4dd35908bef8e9e63c2edaa0cdb5435f2e6db277fafff3c
+    source-type: tar
+    plugin: meson
+    meson-parameters:
+    - -Dprefix=/usr
+    - -Dserver=disabled
+    - -Dman-pages=disabled
+    prime:
+    - usr/lib
+  wlroots:
+    after:
+    - libseat
+    source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.12.0/wlroots-0.12.0.tar.gz
+    source-checksum: sha256/c9e9f4f6d2f526d0b2886daf3ec37e64831773059aa669fb98a88522a1626bdb
+    source-type: tar
+    plugin: meson
+    meson-parameters:
+    - -Dprefix=/usr
+    - -Dlibseat=enabled
+    - -Dexamples=false
+    override-build: |
+      snapcraftctl build
+      ninja -C "$SNAPCRAFT_PART_BUILD" install
+    build-packages:
+    - pkg-config
+    - libwayland-dev
+    - wayland-protocols
+    - libegl1-mesa-dev
+    - libdrm-dev
+    - libgbm-dev
+    - libinput-dev
+    - libxkbcommon-dev
+  sway:
+    after:
+    - wlroots
+    source: https://github.com/swaywm/sway/archive/1.5.1.tar.gz
+    source-checksum: sha256/095f983c9a5f80d761bc2fb19df8166839b9290124ccd47f3e74119a1335490f
+    source-type: tar
+    plugin: meson
+    meson-parameters:
+    - -Dprefix=/usr
+    - -Ddefault-wallpaper=false
+    - -Dzsh-completions=false
+    - -Dbash-completions=false
+    - -Dfish-completions=false
+    - -Dman-pages=disabled
+    build-packages:
+    - libcairo2-dev
+    - libpango1.0-dev
+  bison:
+    source: https://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.xz
+    source-checksum: sha256/9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2
+    source-type: tar
+    plugin: autotools
+    build-environment:
+    - SNAPCRAFT_PART_INSTALL: /
+  yambar:
+    after:
+    - bison
+    source: https://codeberg.org/dnkl/yambar.git
+    source-type: git
+    plugin: meson
+    meson-parameters:
+    - -Dprefix=/usr
+    - -Dbuildtype=release
+    - -Dbackend-x11=disabled
+    - -Dcore-plugins-as-shared-libraries=true
+    - -Dplugin-dwl=disabled
+    - -Dplugin-river=disabled
+    - -Dplugin-backlight=enabled
+    - -Dplugin-battery=enabled
+    - -Dplugin-mpd=enabled
+    - -Dplugin-i3=enabled
+    - -Dplugin-pulse=enabled
+    - -Dplugin-removables=enabled
+    - -Dplugin-sway-xkb=enabled
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version \
+      "$(git describe --long --tags --always --match=v*.*.* | sed 's/v//')"
+    build-packages:
+    - pkg-config
+    - libpixman-1-dev
+    - libyaml-dev
+    - libfontconfig1-dev
+    - libwayland-dev
+    - wayland-protocols
+    - flex
+    - scdoc
+    # plugins:
+    - libudev-dev
+    - libmpdclient-dev
+    - libjson-c-dev
+    - libpulse-dev
+    stage-packages:
+    - libmpdclient2
+    prime:
+    - -usr/include
+    - -usr/share
+  font-awesome:
+    source: https://github.com/FortAwesome/Font-Awesome/archive/6.4.0.tar.gz
+    source-checksum: sha256/c8d286b1941fca9841d07fe165f9e0a5ee1ccf99417cf60025986f303b54da5c
+    source-type: tar
+    plugin: dump
+    organize:
+      webfonts/*0.ttf: usr/share/fonts/
+    prime:
+    - usr/
+  local:
+    source: snap/local/
+    source-type: local
+    plugin: dump
+    organize:
+      sway: bin/
+      fonts.conf: etc/fonts/

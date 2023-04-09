@@ -1,0 +1,11 @@
+#!/bin/sh
+[ -e "$XDG_RUNTIME_DIR" ] || mkdir -p "$XDG_RUNTIME_DIR"
+i=0
+while [ "$i" -le 32 ]; do
+	if [ ! -e "$XDG_RUNTIME_DIR/../wayland-$i" ]; then
+		export "SWAYSOCK=$XDG_RUNTIME_DIR/sway-ipc-$i"
+		break
+	fi
+	i=$((i+1))
+done
+XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR%/*}" exec "$@"
