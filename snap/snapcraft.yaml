@@ -1,7 +1,7 @@
 name: sway-yambar
+version: '1.7-core22'
 summary: sway with yambar panel
 description: ' '
-adopt-info: yambar
 grade: stable
 confinement: strict
 base: core22
@@ -31,7 +31,6 @@ environment:
   XKB_CONFIG_ROOT: $SNAP/gui-lib/usr/share/X11/xkb
   __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gui-lib/usr/share/glvnd/egl_vendor.d
   LIBGL_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
-# LIBVA_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
   FONTCONFIG_PATH: $SNAP/gui-lib/etc/fonts
   FONTCONFIG_FILE: $SNAP/etc/fonts/fonts.conf
 
@@ -42,6 +41,10 @@ plugs:
     target: $SNAP/gui-lib
 
 layout:
+  /usr/share/libinput:
+    symlink: $SNAP/gui-lib/usr/share/libinput
+  /usr/share/libwacom:
+    symlink: $SNAP/gui-lib/usr/share/libwacom
   /usr/share/font1:
     symlink: $SNAP/gui-lib/usr/share/fonts
   /usr/share/font2:
@@ -87,9 +90,6 @@ parts:
     - -Dplugin-pulse=enabled
     - -Dplugin-removables=enabled
     - -Dplugin-sway-xkb=enabled
-    override-pull: |
-      craftctl default
-      craftctl set "version=$(git describe --long --tags --always --match=v*.*.* | sed 's/v//')"
     build-packages:
     - meson
     - ninja-build
