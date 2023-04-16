@@ -1,0 +1,122 @@
+awesome: &awesome "Font Awesome 6 Free:style=solid:pixelsize=14"
+bar:
+  height: 20
+  location: top
+  background: 000000ff
+  font: DejaVuSansMono:pixelsize=14
+  spacing: 5
+
+  left:
+  - i3:
+      sort: ascending
+      anchors:
+      - string: &i3_workspace
+          margin: 6
+          text: "{name}"
+      - string: &i3_deco
+          size: 1
+          color: ffffffff
+      content:
+        "":
+          map:
+            default:
+            - string:
+                <<: *i3_workspace
+            conditions:
+              state == focused:
+              - string:
+                  <<: *i3_workspace
+                  deco:
+                    border:
+                      <<: *i3_deco
+              state == urgent:
+              - string:
+                  <<: *i3_workspace
+                  deco:
+                    overline:
+                      <<: *i3_deco
+        current:
+        - string:
+            margin: 15
+            max: 100
+            text: "{title}"
+
+  right:
+  - sway-xkb:
+      identifiers:
+      - 1:1:AT_Translated_Set_2_keyboard
+      content:
+      - string: {text: "", font: *awesome}
+      - string: {text: "{layout}", max: 3}
+  - cpu:
+      poll-interval: 2500
+      content:
+        map:
+          conditions:
+            id < 0:
+            - string: {text: "", font: *awesome}
+            - string: {text: "{cpu}%"}
+  - mem:
+      interval: 2500
+      content:
+      - string: {text: "{used:mb}MB"}
+#  - disk-io:
+#      poll-interval: 1000
+#      content:
+#        map:
+#          conditions:
+#            device == Total:
+#              list:
+#                items:
+#                  - string: {text: "Total read: "}
+#                  - map:
+#                      default: 
+#                      - string: {text: "{read_speed} B/s"}
+#                      conditions:
+#                        read_speed > 1073741824:
+#                        - string: {text: "{read_speed:gib} GB/s"}
+#                        read_speed > 1048576:
+#                        - string: {text: "{read_speed:mib} MB/s"}
+#                        read_speed > 1024:
+#                        - string: {text: "{read_speed:kib} KB/s"}
+#                  - string: {text: " | "}
+#                  - string: {text: "Total written: "}
+#                  - map:
+#                      default: {string: {text: "{write_speed} B/s"}}
+#                      conditions:
+#                        write_speed > 1073741824:
+#                        - string: {text: "{write_speed:gib} GB/s"}
+#                        write_speed > 1048576:
+#                        - string: {text: "{write_speed:mib} MB/s"}
+#                        write_speed > 1024:
+#                        - string: {text: "{write_speed:kib} KB/s"}
+#  - network:
+#      name: wlp0s12f0
+#      poll-interval: 2500
+#      content:
+#        map:
+#          default: {string: {text: , font: *awesome, foreground: ffffff66}}
+#          conditions:
+#            state == down: {string: {text: , font: *awesome, foreground: ff0000ff}}
+#            state == up:
+#              map:
+#                default:
+#                - string: {text: , font: *awesome}
+#                - string: {text: "{ssid} {dl-speed:mb}/{ul-speed:mb} Mb/s"}
+#                conditions:
+#                  ipv4 == "":
+#                  - string: {text: , font: *awesome, foreground: ffffff66}
+#                  - string: {text: "{ssid} {dl-speed:mb}/{ul-speed:mb} Mb/s", foreground: ffffff66}
+#  - backlight:
+#      name: intel_backlight
+#      content:
+#      - string: {text: "{percent}%"}
+#  - battery:
+#      name: BAT1
+#      poll-interval: 30000
+#      content:
+#      - string: {text: "BAT: {capacity}%"}
+  - clock:
+      date-format: "%a %b %-d"
+      content:
+      - string: {text: "{date}  {time}"}

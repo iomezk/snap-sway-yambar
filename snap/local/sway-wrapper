@@ -1,0 +1,3 @@
+#!/bin/sh
+[ -e "$XDG_RUNTIME_DIR" ] || mkdir -p "$XDG_RUNTIME_DIR"
+exec "$@"

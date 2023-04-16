@@ -1,33 +1,36 @@
 name: sway-yambar
 version: '1.7-core22'
-summary: sway with yambar panel
-description: ' '
-grade: stable
+summary: Sway WM with Yambar panel
+description: |
+  This snap requires access to the system seatd (as a root):  
+  `snap connect sway-yambar:seatd`
+
+  Then run Sway in a free tty as a non-privileged user:  
+  `exec sway-yambar`
+
+  snap's HOME directory is at /home/«user»/snap/sway-yambar/common  
+  Default configs can be obtained from /snap/sway-yambar/current/etc/
 confinement: strict
 base: core22
 
 apps:
-  sway:
+  sway-yambar:
     command-chain:
-    - bin/sway
-    command: usr/bin/sway
+    - bin/sway-wrapper
+    command: bin/sway
+    slots:
+    - wayland
     plugs:
     - opengl
-    - wayland
-  yambar:
-    command-chain:
-    - bin/sway
-    command: usr/bin/yambar
-    plugs:
-    - opengl
-    - wayland
+    - seatd
+  swaymsg:
+    command: bin/swaymsg
 
 environment:
   HOME: $SNAP_USER_COMMON
   XDG_CONFIG_HOME: $SNAP_USER_COMMON/.config
-#  SNAP_RUNTIME_DIR: $XDG_RUNTIME_DIR
-  PATH: $SNAP/usr/bin:$PATH
-  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/yambar
+  PATH: $SNAP/bin:$PATH
+  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET/yambar
   XKB_CONFIG_ROOT: $SNAP/gui-lib/usr/share/X11/xkb
   __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gui-lib/usr/share/glvnd/egl_vendor.d
   LIBGL_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
@@ -39,8 +42,16 @@ plugs:
     interface: content
     default-provider: gnome-42-2204
     target: $SNAP/gui-lib
+  seatd:
+    interface: system-files
+    write:
+    - /run/seatd.sock
 
 layout:
+  /etc/sway/config:
+    symlink: $SNAP/etc/sway-config
+  /etc/yambar/config.yml:
+    symlink: $SNAP/etc/yambar-config.yml
   /usr/share/libinput:
     symlink: $SNAP/gui-lib/usr/share/libinput
   /usr/share/libwacom:
@@ -48,36 +59,101 @@ layout:
   /usr/share/font1:
     symlink: $SNAP/gui-lib/usr/share/fonts
   /usr/share/font2:
-    symlink: $SNAP/usr/share/fonts
+    symlink: $SNAP/share/fonts
 
 parts:
+  local:
+    source: snap/local/
+    source-type: local
+    plugin: dump
+    organize:
+      sway-wrapper: bin/
+      fonts.conf: etc/fonts/
+      sway-config: etc/
+      yambar-config.yml: etc/
+    prime:
+    - -patches/
+  libseat:
+    source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.7.0.tar.gz
+    source-checksum: sha256/210ddf8efa1149cde4dd35908bef8e9e63c2edaa0cdb5435f2e6db277fafff3c
+    source-type: tar
+    plugin: meson
+    meson-parameters:
+    - -Dprefix=/
+    - -Dserver=disabled
+    - -Dman-pages=disabled
+    build-packages:
+    - meson
+    - ninja-build
+    prime:
+    - '**/*.so*'
+  wlroots:
+    after:
+    - local
+    - libseat
+    source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.15.1/wlroots-0.15.1.tar.gz
+    source-checksum: sha256/5b92f11a52d978919ed1306e0d54c9d59f1762b28d44f0a2da3ef3b351305373
+    source-type: tar
+    plugin: meson
+    meson-parameters:
+    - -Dprefix=/
+    - -Dexamples=false
+    - -Dbackends=drm,libinput
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/wlroots-noshm.patch
+    override-build: |
+      craftctl default
+      ninja -C "$CRAFT_PART_BUILD" install
+    build-packages:
+    - meson
+    - ninja-build
+    - libwayland-dev
+    - wayland-protocols
+    - libdrm-dev
+    - libgbm-dev
+    - libxkbcommon-dev
+    prime:
+    - '**/*.so*'
   sway:
+    after:
+    - local
+    - wlroots
     source: https://github.com/swaywm/sway/archive/1.7.tar.gz
     source-checksum: sha256/0c64536fb2883ec518e75cfb119f9300115fb49b084e3fde62b794fe2c6c8d84
     source-type: tar
     plugin: meson
     meson-parameters:
-    - -Dprefix=/usr
+    - -Dprefix=/
     - -Ddefault-wallpaper=false
     - -Dzsh-completions=false
     - -Dbash-completions=false
     - -Dfish-completions=false
     - -Dswaybar=false
     - -Dman-pages=disabled
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/sway-parent-runtime-dir.patch
+      patch -p1 -i ../../local/src/patches/sway-yambar.patch
     build-packages:
     - meson
     - ninja-build
-    - libwlroots-dev
     - libcairo2-dev
     - libpango1.0-dev
-    stage-packages:
-    - libwlroots10
+    - libgles-dev
+    - libevdev-dev
+    - libinput-dev
+    prime:
+    - bin
   yambar:
-    source: https://codeberg.org/dnkl/yambar.git
-    source-type: git
+    after:
+    - local
+    source: https://codeberg.org/dnkl/yambar/archive/1.9.0.tar.gz
+    source-checksum: sha256/46f3002338f451c154678167bf3d5f593307954b6f381c50ddef2726b1a8c811
+    source-type: tar
     plugin: meson
     meson-parameters:
-    - -Dprefix=/usr
+    - -Dprefix=/
     - -Dbuildtype=release
     - -Dbackend-x11=disabled
     - -Dcore-plugins-as-shared-libraries=true
@@ -90,6 +166,9 @@ parts:
     - -Dplugin-pulse=enabled
     - -Dplugin-removables=enabled
     - -Dplugin-sway-xkb=enabled
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/yambar-systemwide-config.patch
     build-packages:
     - meson
     - ninja-build
@@ -108,22 +187,17 @@ parts:
     - libpulse-dev
     stage-packages:
     - libmpdclient2
+    organize:
+      usr/lib/: lib/
     prime:
-    - -usr/include
-    - -usr/share
+    - bin
+    - '**/*.so*'
   font-awesome:
     source: https://github.com/FortAwesome/Font-Awesome/archive/6.4.0.tar.gz
     source-checksum: sha256/c8d286b1941fca9841d07fe165f9e0a5ee1ccf99417cf60025986f303b54da5c
     source-type: tar
     plugin: dump
     organize:
-      webfonts/*0.ttf: usr/share/fonts/
+      webfonts/*0.ttf: share/fonts/
     prime:
-    - usr/
-  local:
-    source: snap/local/
-    source-type: local
-    plugin: dump
-    organize:
-      sway: bin/
-      fonts.conf: etc/fonts/
+    - share/

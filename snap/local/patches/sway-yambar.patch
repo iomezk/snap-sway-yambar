@@ -1,0 +1,13 @@
+--- a/sway/config/bar.c
++++ b/sway/config/bar.c
+@@ -237,8 +237,8 @@
+ 
+ 			// run custom swaybar
+ 			char *const cmd[] = {
+-					bar->swaybar_command ? bar->swaybar_command : "swaybar",
+-					"-b", bar->id, NULL};
++					bar->swaybar_command ? bar->swaybar_command : "yambar",
++					NULL};
+ 			execvp(cmd[0], cmd);
+ 			_exit(EXIT_FAILURE);
+ 		}
