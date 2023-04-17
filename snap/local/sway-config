@@ -216,6 +216,7 @@ bar {
 
 default_border none
 
+# "pointerkeys":
 bindsym KP_Divide seat * cursor press BTN_LEFT
 bindsym KP_Multiply seat * cursor press BTN_RIGHT; seat * cursor release BTN_RIGHT
 bindsym KP_Begin seat * cursor press BTN_LEFT; seat * cursor release BTN_LEFT

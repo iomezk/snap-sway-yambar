@@ -2,14 +2,20 @@ name: sway-yambar
 version: '1.7-core22'
 summary: Sway WM with Yambar panel
 description: |
-  This snap requires access to the system seatd (as a root):  
-  `snap connect sway-yambar:seatd`
+  This snap requires access to the system logind. (as a root user):  
+  `snap connect sway-yambar:login-session-control`  
+  `snap connect sway-yambar:login-session-observe`
 
-  Then run Sway in a free tty as a non-privileged user:  
+  Also to fix Firefox crashes it's currently needed:  
+  `snap connect firefox:wayland sway-yambar`
+
+  Then start Sway in a free tty as a non-privileged user:  
   `exec sway-yambar`
 
-  snap's HOME directory is at /home/«user»/snap/sway-yambar/common  
+  HOME directory of this snap is /home/᚜user᚛/snap/sway-yambar/common/  
   Default configs can be obtained from /snap/sway-yambar/current/etc/
+source-code: https://github.com/iomezk/snap-sway-yambar
+license: MIT
 confinement: strict
 base: core22
 
@@ -21,8 +27,10 @@ apps:
     slots:
     - wayland
     plugs:
+    - login-session-control
+    - login-session-observe
     - opengl
-    - seatd
+#    - seatd
   swaymsg:
     command: bin/swaymsg
 
@@ -42,10 +50,10 @@ plugs:
     interface: content
     default-provider: gnome-42-2204
     target: $SNAP/gui-lib
-  seatd:
-    interface: system-files
-    write:
-    - /run/seatd.sock
+#  seatd:
+#    interface: system-files
+#    write:
+#    - /run/seatd.sock
 
 layout:
   /etc/sway/config:
@@ -80,11 +88,14 @@ parts:
     plugin: meson
     meson-parameters:
     - -Dprefix=/
+    - -Dlibseat-logind=systemd
+    - -Dlibseat-seatd=disabled
     - -Dserver=disabled
     - -Dman-pages=disabled
     build-packages:
     - meson
     - ninja-build
+    - libsystemd-dev
     prime:
     - '**/*.so*'
   wlroots:
