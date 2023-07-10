@@ -22,7 +22,7 @@ base: core22
 apps:
   sway-yambar:
     command-chain:
-    - bin/sway-wrapper
+    - sway-wrapper
     command: bin/sway
     slots:
     - wayland
