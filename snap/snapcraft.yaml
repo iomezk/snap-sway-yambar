@@ -30,7 +30,6 @@ apps:
     - login-session-control
     - login-session-observe
     - opengl
-#    - seatd
   swaymsg:
     command: bin/swaymsg
 
@@ -50,10 +49,6 @@ plugs:
     interface: content
     default-provider: gnome-42-2204
     target: $SNAP/gui-lib
-#  seatd:
-#    interface: system-files
-#    write:
-#    - /run/seatd.sock
 
 layout:
   /etc/sway/config:
