@@ -37,7 +37,7 @@ environment:
   HOME: $SNAP_USER_COMMON
   XDG_CONFIG_HOME: $SNAP_USER_COMMON/.config
   PATH: $SNAP/bin:$PATH
-  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET/yambar
+  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/lib
   XKB_CONFIG_ROOT: $SNAP/gui-lib/usr/share/X11/xkb
   __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gui-lib/usr/share/glvnd/egl_vendor.d
   LIBGL_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
@@ -62,7 +62,7 @@ layout:
   /usr/share/font1:
     symlink: $SNAP/gui-lib/usr/share/fonts
   /usr/share/font2:
-    symlink: $SNAP/share/fonts
+    symlink: $SNAP/fonts
 
 parts:
   local:
@@ -77,17 +77,25 @@ parts:
     source-type: tar
     plugin: meson
     meson-parameters:
-    - -Dprefix=/
+    - --buildtype=release
+    - --strip
+    - --prefix=/usr
+    - --libdir=lib
     - -Dlibseat-logind=systemd
     - -Dlibseat-seatd=disabled
     - -Dserver=disabled
     - -Dman-pages=disabled
+    override-build: |
+      craftctl default
+      ninja -C "$CRAFT_PART_BUILD" install
     build-packages:
     - meson
     - ninja-build
     - libsystemd-dev
+    organize:
+      '**/*.so*': lib/
     prime:
-    - '**/*.so*'
+    - lib
   wlroots:
     after:
     - local
@@ -97,7 +105,10 @@ parts:
     source-type: tar
     plugin: meson
     meson-parameters:
-    - -Dprefix=/
+    - --buildtype=release
+    - --strip
+    - --prefix=/usr
+    - --libdir=lib
     - -Dexamples=false
     - -Dbackends=drm,libinput
     override-pull: |
@@ -107,6 +118,7 @@ parts:
       craftctl default
       ninja -C "$CRAFT_PART_BUILD" install
     build-packages:
+    - patch
     - meson
     - ninja-build
     - libwayland-dev
@@ -114,8 +126,10 @@ parts:
     - libdrm-dev
     - libgbm-dev
     - libxkbcommon-dev
+    organize:
+      '**/*.so*': lib/
     prime:
-    - '**/*.so*'
+    - lib
   sway:
     after:
     - local
@@ -125,7 +139,9 @@ parts:
     source-type: tar
     plugin: meson
     meson-parameters:
-    - -Dprefix=/
+    - --buildtype=release
+    - --strip
+    - --prefix=/
     - -Ddefault-wallpaper=false
     - -Dzsh-completions=false
     - -Dbash-completions=false
@@ -137,6 +153,7 @@ parts:
       patch -p1 -i ../../local/src/patches/sway-parent-runtime-dir.patch
       patch -p1 -i ../../local/src/patches/sway-yambar.patch
     build-packages:
+    - patch
     - meson
     - ninja-build
     - libcairo2-dev
@@ -154,8 +171,9 @@ parts:
     source-type: tar
     plugin: meson
     meson-parameters:
-    - -Dprefix=/
-    - -Dbuildtype=release
+    - --buildtype=release
+    - --strip
+    - --prefix=/
     - -Dbackend-x11=disabled
     - -Dcore-plugins-as-shared-libraries=true
     - -Dplugin-dwl=disabled
@@ -171,6 +189,7 @@ parts:
       craftctl default
       patch -p1 -i ../../local/src/patches/yambar-systemwide-config.patch
     build-packages:
+    - patch
     - meson
     - ninja-build
     - bison
@@ -181,6 +200,7 @@ parts:
     - wayland-protocols
     - flex
     - scdoc
+    - git  # for latest libtllist-dev
     # plugins:
     - libudev-dev
     - libmpdclient-dev
@@ -189,16 +209,16 @@ parts:
     stage-packages:
     - libmpdclient2
     organize:
-      usr/lib/: lib/
+      '**/*.so*': lib/
     prime:
     - bin
-    - '**/*.so*'
+    - lib
   font-awesome:
     source: https://github.com/FortAwesome/Font-Awesome/archive/6.4.0.tar.gz
     source-checksum: sha256/c8d286b1941fca9841d07fe165f9e0a5ee1ccf99417cf60025986f303b54da5c
     source-type: tar
     plugin: dump
     organize:
-      webfonts/*0.ttf: share/fonts/
+      webfonts/*0.ttf: fonts/
     prime:
-    - share/
+    - fonts/
