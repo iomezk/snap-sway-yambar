@@ -12,8 +12,9 @@ description: |
   Then start Sway in a free tty as a non-privileged user:  
   `exec sway-yambar`
 
-  HOME directory of this snap is /home/᚜user᚛/snap/sway-yambar/common/  
-  Default configs can be obtained from /snap/sway-yambar/current/etc/
+  HOME directory of this snap is /home/$USER/snap/sway-yambar/common/  
+  Default configs can be obtained from /snap/sway-yambar/current/etc/  
+  Launching a `foot-terminal` snap using $mod+Enter hotkey is supported out of the box.
 source-code: https://github.com/iomezk/snap-sway-yambar
 license: MIT
 confinement: strict
@@ -27,6 +28,7 @@ apps:
     slots:
     - wayland
     plugs:
+    - desktop  # xdg-open
     - login-session-control
     - login-session-observe
     - opengl
@@ -37,7 +39,7 @@ environment:
   HOME: $SNAP_USER_COMMON
   XDG_CONFIG_HOME: $SNAP_USER_COMMON/.config
   PATH: $SNAP/bin:$PATH
-  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/lib
+  LD_LIBRARY_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/lib
   XKB_CONFIG_ROOT: $SNAP/gui-lib/usr/share/X11/xkb
   __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gui-lib/usr/share/glvnd/egl_vendor.d
   LIBGL_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
@@ -52,9 +54,9 @@ plugs:
 
 layout:
   /etc/sway/config:
-    symlink: $SNAP/etc/sway-config
+    symlink: $SNAP/etc/sway/config
   /etc/yambar/config.yml:
-    symlink: $SNAP/etc/yambar-config.yml
+    symlink: $SNAP/etc/yambar/config.yml
   /usr/share/libinput:
     symlink: $SNAP/gui-lib/usr/share/libinput
   /usr/share/libwacom:
@@ -152,6 +154,7 @@ parts:
       craftctl default
       patch -p1 -i ../../local/src/patches/sway-parent-runtime-dir.patch
       patch -p1 -i ../../local/src/patches/sway-yambar.patch
+      patch -p1 -i ../../local/src/patches/sway-config.patch
     build-packages:
     - patch
     - meson
@@ -163,6 +166,7 @@ parts:
     - libinput-dev
     prime:
     - bin
+    - etc
   yambar:
     after:
     - local

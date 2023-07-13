@@ -1,0 +1,47 @@
+--- a/config.in
++++ b/config.in
+@@ -14,7 +14,7 @@
+ set $up k
+ set $right l
+ # Your preferred terminal emulator
+-set $term foot
++set $term xdg-open /dev/random
+ # Your preferred application launcher
+ # Note: pass the final command to swaymsg so that the resulting window can be opened
+ # on the original workspace that the command was run on.
+@@ -23,7 +23,6 @@
+ ### Output configuration
+ #
+ # Default wallpaper (more resolutions are available in @datadir@/backgrounds/sway/)
+-output * bg @datadir@/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+ #
+ # Example configuration:
+ #
+@@ -214,4 +214,26 @@
+     }
+ }
+ 
+-include @sysconfdir@/sway/config.d/*
++
++default_border none
++
++# "pointerkeys":
++bindsym KP_Divide seat * cursor press BTN_LEFT
++bindsym KP_Multiply seat * cursor press BTN_RIGHT; seat * cursor release BTN_RIGHT
++bindsym KP_Begin seat * cursor press BTN_LEFT; seat * cursor release BTN_LEFT
++bindsym KP_Home seat * cursor move -10 -10
++bindsym KP_Up seat * cursor move 0 -10
++bindsym KP_Page_Up seat * cursor move 10 -10
++bindsym KP_Left seat * cursor move -10 0
++bindsym KP_Right seat * cursor move 10 0
++bindsym KP_End seat * cursor move -10 10
++bindsym KP_Down seat * cursor move 0 10
++bindsym KP_Page_Down seat * cursor move 10 10
++bindsym Ctrl+KP_Home seat * cursor move -100 -100
++bindsym Ctrl+KP_Up seat * cursor move 0 -100
++bindsym Ctrl+KP_Page_Up seat * cursor move 100 -100
++bindsym Ctrl+KP_Left seat * cursor move -100 0
++bindsym Ctrl+KP_Right seat * cursor move 100 0
++bindsym Ctrl+KP_End seat * cursor move -100 100
++bindsym Ctrl+KP_Down seat * cursor move 0 100
++bindsym Ctrl+KP_Page_Down seat * cursor move 100 100
