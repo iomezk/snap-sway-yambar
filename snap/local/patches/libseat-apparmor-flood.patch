@@ -1,0 +1,10 @@
+--- a/libseat/backend/logind.c
++++ b/libseat/backend/logind.c
+@@ -109,6 +109,7 @@
+ 	// However, we likely already drained our socket, so there will not be
+ 	// anything to read. Instead, send a ping request to logind so that the
+ 	// user will be woken up by its response.
++	return;
+ 	int ret = send_ping(backend);
+ 	if (ret < 0) {
+ 		log_errorf("Could not send ping message: %s", strerror(-ret));

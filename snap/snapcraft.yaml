@@ -43,6 +43,7 @@ environment:
   XKB_CONFIG_ROOT: $SNAP/gui-lib/usr/share/X11/xkb
   __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gui-lib/usr/share/glvnd/egl_vendor.d
   LIBGL_DRIVERS_PATH: $SNAP/gui-lib/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+  MESA_SHADER_CACHE_DISABLE: "true"
   FONTCONFIG_PATH: $SNAP/gui-lib/etc/fonts
   FONTCONFIG_FILE: $SNAP/etc/fonts/fonts.conf
 
@@ -74,6 +75,8 @@ parts:
     prime:
     - -patches/
   libseat:
+    after:
+    - local
     source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.7.0.tar.gz
     source-checksum: sha256/210ddf8efa1149cde4dd35908bef8e9e63c2edaa0cdb5435f2e6db277fafff3c
     source-type: tar
@@ -87,6 +90,9 @@ parts:
     - -Dlibseat-seatd=disabled
     - -Dserver=disabled
     - -Dman-pages=disabled
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/libseat-apparmor-flood.patch
     override-build: |
       craftctl default
       ninja -C "$CRAFT_PART_BUILD" install
@@ -155,6 +161,7 @@ parts:
       patch -p1 -i ../../local/src/patches/sway-parent-runtime-dir.patch
       patch -p1 -i ../../local/src/patches/sway-yambar.patch
       patch -p1 -i ../../local/src/patches/sway-config.patch
+      patch -p1 -i ../../local/src/patches/sway-apparmor-flood.patch
     build-packages:
     - patch
     - meson
