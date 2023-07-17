@@ -17,7 +17,7 @@
  #
  # Example configuration:
  #
-@@ -214,4 +214,26 @@
+@@ -214,4 +214,38 @@
      }
  }
  
@@ -26,22 +26,34 @@
 +default_border none
 +
 +# "pointerkeys":
-+bindsym KP_Divide seat * cursor press BTN_LEFT
-+bindsym KP_Multiply seat * cursor press BTN_RIGHT; seat * cursor release BTN_RIGHT
 +bindsym KP_Begin seat * cursor press BTN_LEFT; seat * cursor release BTN_LEFT
-+bindsym KP_Home seat * cursor move -10 -10
-+bindsym KP_Up seat * cursor move 0 -10
-+bindsym KP_Page_Up seat * cursor move 10 -10
-+bindsym KP_Left seat * cursor move -10 0
-+bindsym KP_Right seat * cursor move 10 0
-+bindsym KP_End seat * cursor move -10 10
-+bindsym KP_Down seat * cursor move 0 10
-+bindsym KP_Page_Down seat * cursor move 10 10
-+bindsym Ctrl+KP_Home seat * cursor move -100 -100
-+bindsym Ctrl+KP_Up seat * cursor move 0 -100
-+bindsym Ctrl+KP_Page_Up seat * cursor move 100 -100
-+bindsym Ctrl+KP_Left seat * cursor move -100 0
-+bindsym Ctrl+KP_Right seat * cursor move 100 0
-+bindsym Ctrl+KP_End seat * cursor move -100 100
-+bindsym Ctrl+KP_Down seat * cursor move 0 100
-+bindsym Ctrl+KP_Page_Down seat * cursor move 100 100
++bindsym KP_Divide seat * cursor press BTN_LEFT
++bindsym KP_Multiply seat * cursor press BTN_MIDDLE; seat * cursor release BTN_MIDDLE
++bindsym KP_Subtract seat * cursor press BTN_RIGHT; seat * cursor release BTN_RIGHT
++set $shft_curmv 100
++set $curmv 10
++set $ctl_curmv 1
++bindsym Shift+KP_Home seat * cursor move -$shft_curmv -$shft_curmv
++bindsym Shift+KP_Up seat * cursor move 0 -$shft_curmv
++bindsym Shift+KP_Page_Up seat * cursor move $shft_curmv -$shft_curmv
++bindsym Shift+KP_Left seat * cursor move -$shft_curmv 0
++bindsym Shift+KP_Right seat * cursor move $shft_curmv 0
++bindsym Shift+KP_End seat * cursor move -$shft_curmv $shft_curmv
++bindsym Shift+KP_Down seat * cursor move 0 $shft_curmv
++bindsym Shift+KP_Page_Down seat * cursor move $shft_curmv $shft_curmv
++bindsym KP_Home seat * cursor move -$curmv -$curmv
++bindsym KP_Up seat * cursor move 0 -$curmv
++bindsym KP_Page_Up seat * cursor move $curmv -$curmv
++bindsym KP_Left seat * cursor move -$curmv 0
++bindsym KP_Right seat * cursor move $curmv 0
++bindsym KP_End seat * cursor move -$curmv $curmv
++bindsym KP_Down seat * cursor move 0 $curmv
++bindsym KP_Page_Down seat * cursor move $curmv $curmv
++bindsym Ctrl+KP_Home seat * cursor move -$ctl_curmv -$ctl_curmv
++bindsym Ctrl+KP_Up seat * cursor move 0 -$ctl_curmv
++bindsym Ctrl+KP_Page_Up seat * cursor move $ctl_curmv -$ctl_curmv
++bindsym Ctrl+KP_Left seat * cursor move -$ctl_curmv 0
++bindsym Ctrl+KP_Right seat * cursor move $ctl_curmv 0
++bindsym Ctrl+KP_End seat * cursor move -$ctl_curmv $ctl_curmv
++bindsym Ctrl+KP_Down seat * cursor move 0 $ctl_curmv
++bindsym Ctrl+KP_Page_Down seat * cursor move $ctl_curmv $ctl_curmv
