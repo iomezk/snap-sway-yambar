@@ -10,6 +10,8 @@ description: |
   `snap connect firefox:wayland sway-yambar`
 
   Then start Sway in a free tty as a non-privileged user:  
+  `export WAYLAND_DISPLAY=wayland-1`  
+  `systemctl --user import-environment WAYLAND_DISPLAY`  
   `exec sway-yambar`
 
   HOME directory of this snap is /home/$USER/snap/sway-yambar/common/  
@@ -46,6 +48,9 @@ environment:
   MESA_SHADER_CACHE_DISABLE: "true"
   FONTCONFIG_PATH: $SNAP/gui-lib/etc/fonts
   FONTCONFIG_FILE: $SNAP/etc/fonts/fonts.conf
+  WLR_BACKENDS: libinput,drm
+  SWAYSOCK: $XDG_RUNTIME_DIR/sway-ipc.$WAYLAND_DISPLAY.sock
+  WAYLAND_DISPLAY: ../$WAYLAND_DISPLAY
 
 plugs:
   gnome-42-2204:
@@ -158,7 +163,7 @@ parts:
     - -Dman-pages=disabled
     override-pull: |
       craftctl default
-      patch -p1 -i ../../local/src/patches/sway-parent-runtime-dir.patch
+      patch -p1 -i ../../local/src/patches/sway-use-wayland-display-env.patch
       patch -p1 -i ../../local/src/patches/sway-yambar.patch
       patch -p1 -i ../../local/src/patches/sway-config.patch
       patch -p1 -i ../../local/src/patches/sway-apparmor-flood.patch

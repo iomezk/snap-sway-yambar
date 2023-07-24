@@ -8,6 +8,8 @@ Also to fix Firefox crashes it's currently needed:
 `snap connect firefox:wayland sway-yambar`
 
 Then start Sway in a free tty as a non-privileged user:  
+`export WAYLAND_DISPLAY=wayland-1`  
+`systemctl --user import-environment WAYLAND_DISPLAY`  
 `exec sway-yambar`
 
 HOME directory of this snap is /home/$USER/snap/sway-yambar/common/  

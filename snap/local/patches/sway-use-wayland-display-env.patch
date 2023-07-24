@@ -1,0 +1,24 @@
+--- a/sway/server.c
++++ b/sway/server.c
+@@ -208,17 +208,10 @@
+ 	wl_signal_add(&server->xdg_activation_v1->events.request_activate,
+ 		&server->xdg_activation_v1_request_activate);
+ 
+-	// Avoid using "wayland-0" as display socket
+-	char name_candidate[16];
+-	for (int i = 1; i <= 32; ++i) {
+-		sprintf(name_candidate, "wayland-%d", i);
+-		if (wl_display_add_socket(server->wl_display, name_candidate) >= 0) {
+-			server->socket = strdup(name_candidate);
+-			break;
+-		}
+-	}
+-
+-	if (!server->socket) {
++	char *name_candidate = getenv("WAYLAND_DISPLAY");
++	if (name_candidate && wl_display_add_socket(server->wl_display, name_candidate) >= 0) {
++		server->socket = strdup(name_candidate);
++	} else {
+ 		sway_log(SWAY_ERROR, "Unable to open wayland socket");
+ 		wlr_backend_destroy(server->backend);
+ 		return false;
