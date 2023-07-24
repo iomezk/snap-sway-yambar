@@ -46,7 +46,7 @@
  int allocate_shm_file(size_t size) {
 -	char name[] = RANDNAME_PATTERN;
 -	int fd = excl_shm_open(name);
-+	int fd = memfd_create("", MFD_CLOEXEC);
++	int fd = memfd_create("wlroots", MFD_CLOEXEC);
  	if (fd < 0) {
  		return -1;
  	}
@@ -61,7 +61,7 @@
 -	char name[] = RANDNAME_PATTERN;
 -	int rw_fd = excl_shm_open(name);
 +	char name[sizeof(FD_PATH STR(INT_MAX)) + 1];
-+	int rw_fd = memfd_create("", MFD_CLOEXEC);
++	int rw_fd = memfd_create("wlroots", MFD_CLOEXEC);
  	if (rw_fd < 0) {
  		return false;
  	}
