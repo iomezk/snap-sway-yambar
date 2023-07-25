@@ -13,6 +13,7 @@ bar:
       - string: &i3_workspace
           margin: 6
           text: "{name}"
+          on-click: "swaymsg workspace {name}"
       - string: &i3_deco
           size: 1
           color: ffffffff
@@ -35,6 +36,7 @@ bar:
                   deco:
                     overline:
                       <<: *i3_deco
+                      size: 2
         current:
         - string:
             margin: 15
@@ -47,7 +49,7 @@ bar:
       - 1:1:AT_Translated_Set_2_keyboard
       content:
       - string: {text: "", font: *awesome}
-      - string: {text: "{layout}", max: 3}
+      - string: {text: "{layout}", max: 2}
   - cpu:
       poll-interval: 2500
       content:
@@ -57,7 +59,7 @@ bar:
             - string: {text: "", font: *awesome}
             - string: {text: "{cpu}%"}
   - mem:
-      interval: 2500
+      poll-interval: 2500
       content:
       - string: {text: "{used:mb}MB"}
 #  - disk-io:
