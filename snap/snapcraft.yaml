@@ -85,6 +85,13 @@ parts:
     source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz
     source-checksum: sha256/a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0
     source-type: tar
+    build-packages:
+    - meson
+    - ninja-build
+    - libsystemd-dev
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/libseat-apparmor-flood.patch
     plugin: meson
     meson-parameters:
     - --buildtype=release
@@ -95,16 +102,9 @@ parts:
     - -Dlibseat-seatd=disabled
     - -Dserver=disabled
     - -Dman-pages=disabled
-    override-pull: |
-      craftctl default
-      patch -p1 -i ../../local/src/patches/libseat-apparmor-flood.patch
     override-build: |
       craftctl default
       ninja -C "$CRAFT_PART_BUILD" install
-    build-packages:
-    - meson
-    - ninja-build
-    - libsystemd-dev
     organize:
       '**/*.so*': lib/
     prime:
@@ -116,20 +116,6 @@ parts:
     source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.15.1/wlroots-0.15.1.tar.gz
     source-checksum: sha256/5b92f11a52d978919ed1306e0d54c9d59f1762b28d44f0a2da3ef3b351305373
     source-type: tar
-    plugin: meson
-    meson-parameters:
-    - --buildtype=release
-    - --strip
-    - --prefix=/usr
-    - --libdir=lib
-    - -Dexamples=false
-    - -Dbackends=drm,libinput
-    override-pull: |
-      craftctl default
-      patch -p1 -i ../../local/src/patches/wlroots-noshm.patch
-    override-build: |
-      craftctl default
-      ninja -C "$CRAFT_PART_BUILD" install
     build-packages:
     - patch
     - meson
@@ -139,6 +125,20 @@ parts:
     - libdrm-dev
     - libgbm-dev
     - libxkbcommon-dev
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/wlroots-noshm.patch
+    plugin: meson
+    meson-parameters:
+    - --buildtype=release
+    - --strip
+    - --prefix=/usr
+    - --libdir=lib
+    - -Dexamples=false
+    - -Dbackends=drm,libinput
+    override-build: |
+      craftctl default
+      ninja -C "$CRAFT_PART_BUILD" install
     organize:
       '**/*.so*': lib/
     prime:
@@ -150,6 +150,21 @@ parts:
     source: https://github.com/swaywm/sway/archive/1.7.tar.gz
     source-checksum: sha256/0c64536fb2883ec518e75cfb119f9300115fb49b084e3fde62b794fe2c6c8d84
     source-type: tar
+    build-packages:
+    - patch
+    - meson
+    - ninja-build
+    - libcairo2-dev
+    - libpango1.0-dev
+    - libgles-dev
+    - libevdev-dev
+    - libinput-dev
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/sway-use-wayland-display-env.patch
+      patch -p1 -i ../../local/src/patches/sway-yambar.patch
+      patch -p1 -i ../../local/src/patches/sway-config.patch
+      patch -p1 -i ../../local/src/patches/sway-apparmor-flood.patch
     plugin: meson
     meson-parameters:
     - --buildtype=release
@@ -161,21 +176,6 @@ parts:
     - -Dfish-completions=false
     - -Dswaybar=false
     - -Dman-pages=disabled
-    override-pull: |
-      craftctl default
-      patch -p1 -i ../../local/src/patches/sway-use-wayland-display-env.patch
-      patch -p1 -i ../../local/src/patches/sway-yambar.patch
-      patch -p1 -i ../../local/src/patches/sway-config.patch
-      patch -p1 -i ../../local/src/patches/sway-apparmor-flood.patch
-    build-packages:
-    - patch
-    - meson
-    - ninja-build
-    - libcairo2-dev
-    - libpango1.0-dev
-    - libgles-dev
-    - libevdev-dev
-    - libinput-dev
     prime:
     - bin
     - etc
@@ -185,26 +185,6 @@ parts:
     source: https://codeberg.org/dnkl/yambar/archive/1.10.0.tar.gz
     source-checksum: sha256/ebf08a17b77053f16038c1538fe9d410d06289b8ea28ff5a5022aca8e9b84807
     source-type: tar
-    plugin: meson
-    meson-parameters:
-    - --buildtype=release
-    - --strip
-    - --prefix=/
-    - -Dbackend-x11=disabled
-    - -Dcore-plugins-as-shared-libraries=true
-    - -Dplugin-dwl=disabled
-    - -Dplugin-river=disabled
-    - -Dplugin-backlight=enabled
-    - -Dplugin-battery=enabled
-    - -Dplugin-mpd=enabled
-    - -Dplugin-i3=enabled
-    - -Dplugin-pulse=enabled
-    - -Dplugin-removables=enabled
-    - -Dplugin-sway-xkb=enabled
-    override-pull: |
-      craftctl default
-      patch -p1 -i ../../local/src/patches/yambar-systemwide-config.patch
-      patch -p1 -i ../../local/src/patches/yambar-string-particle-truncation-rewrite.patch
     build-packages:
     - patch
     - meson
@@ -223,6 +203,26 @@ parts:
     - libmpdclient-dev
     - libjson-c-dev
     - libpulse-dev
+    override-pull: |
+      craftctl default
+      patch -p1 -i ../../local/src/patches/yambar-systemwide-config.patch
+      patch -p1 -i ../../local/src/patches/yambar-string-particle-truncation-rewrite.patch
+    plugin: meson
+    meson-parameters:
+    - --buildtype=release
+    - --strip
+    - --prefix=/
+    - -Dbackend-x11=disabled
+    - -Dcore-plugins-as-shared-libraries=true
+    - -Dplugin-dwl=disabled
+    - -Dplugin-river=disabled
+    - -Dplugin-backlight=enabled
+    - -Dplugin-battery=enabled
+    - -Dplugin-mpd=enabled
+    - -Dplugin-i3=enabled
+    - -Dplugin-pulse=enabled
+    - -Dplugin-removables=enabled
+    - -Dplugin-sway-xkb=enabled
     stage-packages:
     - libmpdclient2
     organize:
