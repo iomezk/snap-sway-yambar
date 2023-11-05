@@ -85,13 +85,16 @@ parts:
     source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz
     source-checksum: sha256/a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0
     source-type: tar
-    build-packages:
-    - meson
-    - ninja-build
-    - libsystemd-dev
+    build-snaps:
+    - gnome-42-2204-sdk
     override-pull: |
       craftctl default
+      patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/libseat-system-libsystemd.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/libseat-apparmor-flood.patch"
+    build-environment: &buildenv
+    - PATH: /snap/gnome-42-2204-sdk/current/usr/bin${PATH:+:$PATH}
+    - LD_LIBRARY_PATH: /snap/gnome-42-2204-sdk/current/lib/$CRAFT_ARCH_TRIPLET:/snap/gnome-42-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET:/snap/gnome-42-2204-sdk/current/usr/lib:/snap/gnome-42-2204-sdk/current/usr/lib/vala-current:/snap/gnome-42-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET/pulseaudio${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    - PKG_CONFIG_PATH: /snap/gnome-42-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET/pkgconfig:/snap/gnome-42-2204-sdk/current/usr/lib/pkgconfig:/snap/gnome-42-2204-sdk/current/usr/share/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
     plugin: meson
     meson-parameters:
     - --buildtype=release
@@ -116,18 +119,10 @@ parts:
     source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.15.1/wlroots-0.15.1.tar.gz
     source-checksum: sha256/5b92f11a52d978919ed1306e0d54c9d59f1762b28d44f0a2da3ef3b351305373
     source-type: tar
-    build-packages:
-    - patch
-    - meson
-    - ninja-build
-    - libwayland-dev
-    - wayland-protocols
-    - libdrm-dev
-    - libgbm-dev
-    - libxkbcommon-dev
     override-pull: |
       craftctl default
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/wlroots-noshm.patch"
+    build-environment: *buildenv
     plugin: meson
     meson-parameters:
     - --buildtype=release
@@ -151,20 +146,14 @@ parts:
     source-checksum: sha256/0c64536fb2883ec518e75cfb119f9300115fb49b084e3fde62b794fe2c6c8d84
     source-type: tar
     build-packages:
-    - patch
-    - meson
-    - ninja-build
-    - libcairo2-dev
-    - libpango1.0-dev
-    - libgles-dev
     - libevdev-dev
-    - libinput-dev
     override-pull: |
       craftctl default
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-use-wayland-display-env.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-yambar.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-config.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-apparmor-flood.patch"
+    build-environment: *buildenv
     plugin: meson
     meson-parameters:
     - --buildtype=release
@@ -176,6 +165,7 @@ parts:
     - -Dfish-completions=false
     - -Dswaybar=false
     - -Dman-pages=disabled
+    - -Dwerror=false
     prime:
     - bin
     - etc
@@ -186,27 +176,19 @@ parts:
     source-checksum: sha256/ebf08a17b77053f16038c1538fe9d410d06289b8ea28ff5a5022aca8e9b84807
     source-type: tar
     build-packages:
-    - patch
-    - meson
-    - ninja-build
     - bison
-    - libpixman-1-dev
     - libyaml-dev
-    - libfontconfig1-dev
-    - libwayland-dev
-    - wayland-protocols
     - flex
     - scdoc
     - git  # for latest libtllist-dev
     # plugins:
-    - libudev-dev
     - libmpdclient-dev
     - libjson-c-dev
-    - libpulse-dev
     override-pull: |
       craftctl default
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/yambar-systemwide-config.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/yambar-string-particle-truncation-rewrite.patch"
+    build-environment: *buildenv
     plugin: meson
     meson-parameters:
     - --buildtype=release
