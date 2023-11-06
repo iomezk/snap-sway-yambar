@@ -1,12 +1,13 @@
 --- a/util/shm.c
 +++ b/util/shm.c
-@@ -1,48 +1,22 @@
+@@ -1,4 +1,4 @@
 -#define _POSIX_C_SOURCE 200112L
 +#define _GNU_SOURCE
  #include <errno.h>
  #include <fcntl.h>
  #include <string.h>
- #include <sys/mman.h>
+@@ -6,44 +6,18 @@
+ #include <sys/stat.h>
  #include <time.h>
  #include <unistd.h>
 +#include <stdio.h>
@@ -54,7 +55,7 @@
  
  	int ret;
  	do {
-@@ -57,22 +31,22 @@
+@@ -58,21 +32,22 @@
  }
  
  bool allocate_shm_file_pair(size_t size, int *rw_fd_ptr, int *ro_fd_ptr) {
@@ -80,7 +81,6 @@
  	}
  
 -	shm_unlink(name);
--
- 	int ret;
- 	do {
- 		ret = ftruncate(rw_fd, size);
+ 
+ 	// Make sure the file cannot be re-opened in read-write mode (e.g. via
+ 	// "/proc/self/fd/" on Linux)

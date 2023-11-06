@@ -1,5 +1,4 @@
 name: sway-yambar
-version: '1.7-core22'
 summary: Sway WM with Yambar panel
 description: |
   This snap requires access to the system logind. (as a root user):  
@@ -72,6 +71,7 @@ layout:
   /usr/share/font2:
     symlink: $SNAP/fonts
 
+adopt-info: sway
 parts:
   local:
     source: snap/local/
@@ -116,9 +116,11 @@ parts:
     after:
     - local
     - libseat
-    source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.15.1/wlroots-0.15.1.tar.gz
-    source-checksum: sha256/5b92f11a52d978919ed1306e0d54c9d59f1762b28d44f0a2da3ef3b351305373
+    source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.16.2/wlroots-0.16.2.tar.gz
+    source-checksum: sha256/f502959db8bc029e32f10a837b37257bb8c5ed269bceddf9492f0bb381bebf76
     source-type: tar
+    build-packages:
+    - hwdata
     override-pull: |
       craftctl default
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/wlroots-noshm.patch"
@@ -142,10 +144,11 @@ parts:
     after:
     - local
     - wlroots
-    source: https://github.com/swaywm/sway/archive/1.7.tar.gz
-    source-checksum: sha256/0c64536fb2883ec518e75cfb119f9300115fb49b084e3fde62b794fe2c6c8d84
+    source: https://github.com/swaywm/sway/archive/1.8.1.tar.gz
+    source-checksum: sha256/e9f575761342fc8fe0cfeea80c90f32ddfa8c543572fec179f40922346f47dff
     source-type: tar
     build-packages:
+    - jq
     - libevdev-dev
     override-pull: |
       craftctl default
@@ -153,6 +156,7 @@ parts:
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-yambar.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-config.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-apparmor-flood.patch"
+      patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-enum-fix.patch"
     build-environment: *buildenv
     plugin: meson
     meson-parameters:
@@ -165,7 +169,9 @@ parts:
     - -Dfish-completions=false
     - -Dswaybar=false
     - -Dman-pages=disabled
-    - -Dwerror=false
+    override-build: |
+      craftctl default
+      craftctl set "version=$(jq -r .version meson-info/intro-projectinfo.json)"
     prime:
     - bin
     - etc

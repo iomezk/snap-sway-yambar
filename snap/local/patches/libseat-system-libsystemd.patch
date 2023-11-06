@@ -1,0 +1,11 @@
+--- a/meson.build
++++ b/meson.build
+@@ -143,7 +143,7 @@
+ 		assert(get_option('auto_features').auto(), '-Dlibseat-logind must be set to systemd or elogind since auto_features != auto')
+ 		logind = dependency(['libelogind', 'libsystemd'], required: false)
+ 	else
+-		logind = dependency('lib@0@'.format(get_option('libseat-logind')))
++		logind = dependency('lib@0@'.format(get_option('libseat-logind')), include_type: 'system')
+ 	endif
+ 
+ 	if logind.found()
