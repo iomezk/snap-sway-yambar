@@ -73,6 +73,10 @@ layout:
 
 adopt-info: sway
 parts:
+  deps:
+    build-snaps:
+    - gnome-42-2204-sdk
+    plugin: nil
   local:
     source: snap/local/
     source-type: local
@@ -81,12 +85,10 @@ parts:
     - -patches/
   libseat:
     after:
-    - local
+    - deps
     source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz
     source-checksum: sha256/a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0
     source-type: tar
-    build-snaps:
-    - gnome-42-2204-sdk
     override-pull: |
       craftctl default
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/libseat-system-libsystemd.patch"
@@ -114,7 +116,7 @@ parts:
     - lib
   wlroots:
     after:
-    - local
+    - deps
     - libseat
     source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.16.2/wlroots-0.16.2.tar.gz
     source-checksum: sha256/f502959db8bc029e32f10a837b37257bb8c5ed269bceddf9492f0bb381bebf76
@@ -142,7 +144,7 @@ parts:
     - lib
   sway:
     after:
-    - local
+    - deps
     - wlroots
     source: https://github.com/swaywm/sway/archive/1.8.1.tar.gz
     source-checksum: sha256/e9f575761342fc8fe0cfeea80c90f32ddfa8c543572fec179f40922346f47dff
@@ -177,7 +179,7 @@ parts:
     - etc
   yambar:
     after:
-    - local
+    - deps
     source: https://codeberg.org/dnkl/yambar/archive/1.10.0.tar.gz
     source-checksum: sha256/ebf08a17b77053f16038c1538fe9d410d06289b8ea28ff5a5022aca8e9b84807
     source-type: tar
