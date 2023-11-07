@@ -103,17 +103,13 @@ parts:
     - --strip
     - --prefix=/usr
     - --libdir=lib
+    - -Ddefault_library=static
     - -Dlibseat-logind=systemd
     - -Dlibseat-seatd=disabled
     - -Dserver=disabled
     - -Dman-pages=disabled
-    override-build: |
-      craftctl default
-      ninja -C "$CRAFT_PART_BUILD" install
-    organize:
-      '**/*.so*': lib/
     prime:
-    - lib
+    - -*
   wlroots:
     after:
     - deps
@@ -133,15 +129,11 @@ parts:
     - --strip
     - --prefix=/usr
     - --libdir=lib
+    - -Ddefault_library=static
     - -Dexamples=false
     - -Dbackends=drm,libinput
-    override-build: |
-      craftctl default
-      ninja -C "$CRAFT_PART_BUILD" install
-    organize:
-      '**/*.so*': lib/
     prime:
-    - lib
+    - -*
   sway:
     after:
     - deps
@@ -181,7 +173,7 @@ parts:
     after:
     - deps
     source: https://codeberg.org/dnkl/yambar/archive/1.10.0.tar.gz
-    source-checksum: sha256/ebf08a17b77053f16038c1538fe9d410d06289b8ea28ff5a5022aca8e9b84807
+    source-checksum: sha256/3c53d6fc245707d6ff6174395b03d7f069a48da9fb63b612c82d706c1c09b193
     source-type: tar
     build-packages:
     - bison
