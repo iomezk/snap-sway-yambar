@@ -146,6 +146,7 @@ parts:
     - libevdev-dev
     override-pull: |
       craftctl default
+      patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-noshm.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-use-wayland-display-env.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-yambar.patch"
       patch -p1 -i "$CRAFT_PROJECT_DIR/snap/local/patches/sway-config.patch"
